@@ -7,8 +7,7 @@ from google import genai
 from google.genai import types
 
 ###### local imports ######
-# from module import something
-
+from prompts import system_prompt
 
 
 def main():
@@ -47,7 +46,9 @@ def get_client():
 def generate_content(client: genai.Client, messages: list[types.Content], verbose):
     # seting up client so we can make requests 
     response = client.models.generate_content(
-        model="gemini-2.5-flash", contents=messages)
+        model="gemini-2.5-flash", contents=messages, config=types.GenerateContentConfig(system_instruction=system_prompt),
+        )
+        
     # error handleing for meta data
     if response.usage_metadata is None:
         raise RuntimeError("usage_metadata is None, API request may have failed")
@@ -55,7 +56,7 @@ def generate_content(client: genai.Client, messages: list[types.Content], verbos
     if verbose:
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
-        print(response.text)
+    print(response.text)
 
 
 
