@@ -2,7 +2,7 @@
 import os 
 
 ###### 3rd party imports ######
-#import from thing i downloaded 
+from google.genai import types
 
 ###### local imports ######
 # from module import something
@@ -28,3 +28,24 @@ def write_file(working_directory: str, file_path: str, content: str) -> str:
         return f'Successfully wrote to "{file_path}" ({len(content)} characters written)'
     except Exception as e:
         return f"Error: {e}"
+    
+
+
+schema_write_file = types.FunctionDeclaration(
+    name="write_file",
+    description="Writes or overwrites the contents of a file relative to the working directory",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the file to write, relative to the working directory",
+            ),
+            "content": types.Schema(
+                type=types.Type.STRING,
+                description="Text content to write to the file",
+            ),
+        },
+        required=["file_path", "content"],
+    ),
+)

@@ -43,7 +43,6 @@ def get_files_info(working_directory: str, directory: str = ".") -> str:
         files_info.append(f"- {filename}: file_size={file_size} bytes, is_dir={is_dir}")
     return "\n".join(files_info)
 
-from google.genai import types
 
 schema_get_files_info = types.FunctionDeclaration(
     name="get_files_info",
