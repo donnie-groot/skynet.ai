@@ -31,7 +31,15 @@ def main():
     types.Content(role="user", parts=[types.Part(text=args.user_prompt)])
     ]
 
-    generate_content(client, messages, args.verbose)
+    for _ in range(20):
+        try:
+            result = generate_content(client, messages, args.verbose)
+            if result:
+                print(result)
+                return
+        except Exception as e:
+            print(f"Error: {e}")
+    print("Max iterations reached, no final response")
 
 
 def get_client(): 
@@ -59,21 +67,35 @@ def generate_content(client: genai.Client, messages: list[types.Content], verbos
         print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
         print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
     
+
+
+    if response.candidates:
+        messages.append(response.candidates[0].content)
+
+
     if not response.function_calls:
-        print(response.text)
+        return response.text
     else:
         function_responses = []
         for function_call in response.function_calls:
             function_call_result = call_function(function_call, verbose)
+            
             if not function_call_result.parts:
                 raise Exception("function call result has no parts")
+            
             function_response = function_call_result.parts[0].function_response
             if function_response is None:
                 raise Exception("function response is None")
+            
             if function_response.response is None:
                 raise Exception("function response payload is None")
+            
             if verbose:
                 print(f"-> {function_call_result.parts[0].function_response.response}")
+
+            function_responses.append(function_call_result.parts[0])
+        messages.append(types.Content(role="tool", parts=function_responses))
+        return None
 
 if __name__ == "__main__":
     main()
